@@ -45,7 +45,8 @@ export const useNotificationsStore = create<NotificationsState>((set, get) => ({
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        const { data, error } = await supabase
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data, error } = await (supabase as any)
             .from('notifications')
             .select('*')
             .eq('user_id', user.id)
@@ -56,14 +57,15 @@ export const useNotificationsStore = create<NotificationsState>((set, get) => ({
             console.error('Error fetching notifications:', error);
             set({ error: error.message, loading: false });
         } else {
-            const unread = data?.filter(n => !n.is_read).length || 0;
+            const unread = data?.filter((n: Notification) => !n.is_read).length || 0;
             set({ notifications: data || [], unreadCount: unread, loading: false });
         }
     },
 
     markAsRead: async (id: string) => {
         const supabase = createClient();
-        const { error } = await supabase
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { error } = await (supabase as any)
             .from('notifications')
             .update({ is_read: true })
             .eq('id', id);
@@ -83,7 +85,8 @@ export const useNotificationsStore = create<NotificationsState>((set, get) => ({
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        const { error } = await supabase
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { error } = await (supabase as any)
             .from('notifications')
             .update({ is_read: true })
             .eq('user_id', user.id)

@@ -105,7 +105,8 @@ export function SettingsView() {
                                         // In a real app, strict decoupling is key, but here we can direct update for speed given the architecture
                                         const { createClient } = await import('@/lib/supabase/client');
                                         const supabase = createClient();
-                                        const { error } = await supabase.from('user_profiles').update({
+                                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                        const { error } = await (supabase as any).from('user_profiles').update({
                                             preferences: {
                                                 ...currentUser?.preferences,
                                                 notifications: { ...currentUser?.preferences?.notifications, all: checked }

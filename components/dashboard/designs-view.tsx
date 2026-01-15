@@ -45,14 +45,14 @@ export function DesignsView() {
         setMessage(null);
         const supabase = createClient();
 
-        // @ts-ignore - Supabase types are not yet generated for this new table
-        const { error } = await supabase
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { error } = await (supabase as any)
             .from('agency_settings')
             .upsert({
                 key: 'drive_url',
                 value: { url: driveUrl },
                 updated_at: new Date().toISOString()
-            });
+            }, { onConflict: 'key' });
 
         if (error) {
             setMessage({ type: 'error', text: 'Error al guardar el enlace.' });

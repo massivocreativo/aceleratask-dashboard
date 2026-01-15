@@ -15,7 +15,7 @@ interface UserProfile {
     role: 'Designer' | 'Content Manager' | 'Creative Director' | 'CEO';
     avatar_url: string | null;
     created_at: string;
-    updated_at: string | null;
+    updated_at: string;
     preferences: {
         notifications?: {
             all?: boolean;
