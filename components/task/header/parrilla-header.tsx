@@ -31,7 +31,7 @@ import { Badge } from "@/components/ui/badge";
 export function ParrillaHeader() {
     const [open, setOpen] = React.useState(false);
     const [date, setDate] = React.useState<Date | undefined>(new Date());
-    const { filterClientId, setFilterClientId, setFilterDate, parrillas, clients, currentUser, setCurrentView, openCreateModal } = useParrillasStore();
+    const { filterClientId, setFilterClientId, setFilterDate, parrillas, clients, users, currentUser, setCurrentView, openCreateModal } = useParrillasStore();
 
     const selectedClient = clients.find(c => c.id === filterClientId);
     const parrillaCount = parrillas.length;
@@ -65,12 +65,26 @@ export function ParrillaHeader() {
                     <div className="flex items-center gap-2 lg:gap-4">
                         <ThemeToggle />
                         <div className="hidden lg:flex items-center gap-2 text-sm text-muted-foreground mr-2">
-                            <Users className="size-4" />
-                            <span>30 miembros activos</span>
+                            {/* Online Users Avatars */}
+                            <div className="flex -space-x-2">
+                                {users.slice(0, 5).map((user) => (
+                                    <Avatar key={user.id} className="h-7 w-7 border-2 border-green-500 ring-2 ring-background" title={user.full_name}>
+                                        <AvatarImage src={user.avatar_url || ''} alt={user.full_name} />
+                                        <AvatarFallback className="text-xs bg-primary text-primary-foreground">
+                                            {user.full_name.split(' ').map(n => n[0]).join('')}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                ))}
+                                {users.length > 5 && (
+                                    <div className="h-7 w-7 rounded-full bg-muted border-2 border-background flex items-center justify-center text-xs font-medium">
+                                        +{users.length - 5}
+                                    </div>
+                                )}
+                            </div>
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" className="relative h-6 w-6 rounded-full ml-2 p-0">
-                                        <Avatar className="h-6 w-6">
+                                    <Button variant="ghost" className="relative h-8 w-8 rounded-full ml-2 p-0">
+                                        <Avatar className="h-8 w-8 border-2 border-green-500">
                                             <AvatarImage src={currentUser?.avatar_url || ''} alt={currentUser?.full_name || ''} />
                                             <AvatarFallback>{currentUser?.full_name?.charAt(0) || 'U'}</AvatarFallback>
                                         </Avatar>
