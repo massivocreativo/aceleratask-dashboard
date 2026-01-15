@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
+import { ProfilePhotoUpload } from "./profile-photo-upload";
 
 export function SettingsView() {
     const { currentUser } = useParrillasStore();
@@ -35,13 +36,7 @@ export function SettingsView() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6">
-                            <div className="flex items-center gap-6">
-                                <Avatar className="h-24 w-24">
-                                    <AvatarImage src={currentUser?.avatar_url || ''} alt={currentUser?.full_name || ''} />
-                                    <AvatarFallback className="text-2xl">{currentUser?.full_name?.charAt(0) || 'U'}</AvatarFallback>
-                                </Avatar>
-                                <Button variant="outline">Cambiar foto</Button>
-                            </div>
+                            <ProfilePhotoUpload currentUser={currentUser} />
                             <Separator />
                             <div className="grid gap-4 md:grid-cols-2">
                                 <div className="space-y-2">
