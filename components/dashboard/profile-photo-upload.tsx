@@ -24,6 +24,52 @@ export function ProfilePhotoUpload({ currentUser }: ProfilePhotoUploadProps) {
         setAvatarUrl(currentUser?.avatar_url || '');
     }, [currentUser?.avatar_url]);
 
+    // Optimize image: resize and compress
+    const optimizeImage = (file: File, maxSize: number = 400, quality: number = 0.8): Promise<Blob> => {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            img.onload = () => {
+                let { width, height } = img;
+
+                // Calculate new dimensions maintaining aspect ratio
+                if (width > height) {
+                    if (width > maxSize) {
+                        height = (height * maxSize) / width;
+                        width = maxSize;
+                    }
+                } else {
+                    if (height > maxSize) {
+                        width = (width * maxSize) / height;
+                        height = maxSize;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+
+                // Draw and compress
+                ctx?.drawImage(img, 0, 0, width, height);
+                canvas.toBlob(
+                    (blob) => {
+                        if (blob) {
+                            resolve(blob);
+                        } else {
+                            reject(new Error('Failed to compress image'));
+                        }
+                    },
+                    'image/jpeg',
+                    quality
+                );
+            };
+
+            img.onerror = () => reject(new Error('Failed to load image'));
+            img.src = URL.createObjectURL(file);
+        });
+    };
+
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file || !currentUser) return;
@@ -45,15 +91,23 @@ export function ProfilePhotoUpload({ currentUser }: ProfilePhotoUploadProps) {
         try {
             const supabase = createClient();
 
-            // Generate unique filename
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${currentUser.id}-${Date.now()}.${fileExt}`;
+            // Optimize image before upload (resize to 400x400, compress to 80% quality)
+            const optimizedBlob = await optimizeImage(file, 400, 0.8);
+            const originalSize = file.size;
+            const optimizedSize = optimizedBlob.size;
+            console.log(`Image optimized: ${(originalSize / 1024).toFixed(1)}KB → ${(optimizedSize / 1024).toFixed(1)}KB`);
+
+            // Generate unique filename (always .jpg after optimization)
+            const fileName = `${currentUser.id}-${Date.now()}.jpg`;
             const filePath = `avatars/${fileName}`;
 
-            // Upload to Supabase Storage
+            // Upload optimized image to Supabase Storage
             const { error: uploadError } = await supabase.storage
                 .from('avatars')
-                .upload(filePath, file, { upsert: true });
+                .upload(filePath, optimizedBlob, {
+                    upsert: true,
+                    contentType: 'image/jpeg'
+                });
 
             if (uploadError) {
                 throw uploadError;
