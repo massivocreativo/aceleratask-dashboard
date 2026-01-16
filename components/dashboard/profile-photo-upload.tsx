@@ -92,7 +92,7 @@ export function ProfilePhotoUpload({ currentUser }: ProfilePhotoUploadProps) {
         <div className="flex items-center gap-6">
             <div className="relative">
                 <Avatar className="h-24 w-24">
-                    <AvatarImage src={avatarUrl} alt={currentUser?.full_name || ''} />
+                    <AvatarImage src={avatarUrl} alt={currentUser?.full_name || ''} className="object-cover" />
                     <AvatarFallback className="text-2xl">
                         {currentUser?.full_name?.charAt(0) || 'U'}
                     </AvatarFallback>
